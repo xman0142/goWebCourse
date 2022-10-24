@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/xman0142/goWebCourse/pkg/config"
 	"github.com/xman0142/goWebCourse/pkg/handlers"
 	"github.com/xman0142/goWebCourse/pkg/render"
@@ -26,8 +28,21 @@ const portNumber = ":8080"
 
 // 6) The rendered template is handed to the responsewriter, and then sent to the end user's web browser.
 
+var app config.AppConfig
+var session *scs.SessionManager
+
 func main() {
-	var app config.AppConfig
+	// change this to true when in production
+	app.InProduction = false
+
+	// set up the session
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
+
+	app.Session = session
 
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
