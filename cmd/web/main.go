@@ -12,6 +12,20 @@ import (
 
 const portNumber = ":8080"
 
+// 1) A request comes in (a request for a web page)
+// The request is captured by a route (in routes.go)
+// If a matching route is found, it's handed to the handler specified by that route
+
+// 2)  The template is loaded from disk into memory.
+
+// 3) The template's parent (layout) and any partials are loaded from disk into memory
+
+// 4) Logic, if any, is applied to the request in the handler (like a database lookup, or whatever)
+
+// 5) The template is rendered, and data is passed to it, if necesary
+
+// 6) The rendered template is handed to the responsewriter, and then sent to the end user's web browser.
+
 func main() {
 	var app config.AppConfig
 
@@ -28,12 +42,22 @@ func main() {
 	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
-	http.HandleFunc("/teaching", handlers.Repo.Teaching)
-	http.HandleFunc("/entreneurship", handlers.Repo.Entreneurship)
 
-	fmt.Println(fmt.Printf("Starting Application on port %s", portNumber))
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 
-	_ = http.ListenAndServe(portNumber, nil)
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
+
+// //Routes
+// http.HandleFunc("/", handlers.Repo.Home)
+// http.HandleFunc("/about", handlers.Repo.About)
+// http.HandleFunc("/teaching", handlers.Repo.Teaching)
+// http.HandleFunc("/entreneurship", handlers.Repo.Entreneurship)
