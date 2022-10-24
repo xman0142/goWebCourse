@@ -22,10 +22,16 @@ func main() {
 	}
 
 	app.TemplateCache = tc
-	http.HandleFunc("/", handlers.Home)
-	http.HandleFunc("/about", handlers.About)
-	http.HandleFunc("/teaching", handlers.Teaching)
-	http.HandleFunc("/entreneurship", handlers.Entreneurship)
+	app.UseCache = false
+
+	repo := handlers.NewRepo(&app)
+	handlers.NewHandlers(repo)
+
+	render.NewTemplates(&app)
+	http.HandleFunc("/", handlers.Repo.Home)
+	http.HandleFunc("/about", handlers.Repo.About)
+	http.HandleFunc("/teaching", handlers.Repo.Teaching)
+	http.HandleFunc("/entreneurship", handlers.Repo.Entreneurship)
 
 	fmt.Println(fmt.Printf("Starting Application on port %s", portNumber))
 
